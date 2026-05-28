@@ -2,6 +2,7 @@
   "require": {
     "phpoffice/phpspreadsheet": "^5.7",
     "ext-gd": "*",
-    "ext-zip": "*"
+    "ext-zip": "*",
+    "ext-mysqli": "*"
   }
 }
