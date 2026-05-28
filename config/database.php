@@ -7,7 +7,7 @@ define('DB_PASS', getenv('DB_PASS'));
 define('DB_NAME', 'defaultdb');
 define('DB_PORT', 27187); // Port khusus Aiven
 define('DB_CHARSET', 'utf8mb4');
-define('BASE_URL', '/skripsi_spk_beasiswa'); // Ini tetap untuk testing lokal
+define('BASE_URL', '');
 
 function getDB(): array {
     static $result = null;
