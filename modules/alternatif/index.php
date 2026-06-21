@@ -152,36 +152,64 @@ unset($_SESSION['import_error'], $_SESSION['import_success']);
           </div>
           <?php if ($totalPages > 1): ?>
             <?php 
+              $queryParams = $_GET;
+              unset($queryParams['page']); 
+              $queryString = !empty($queryParams) ? '&' . http_build_query($queryParams) : '';
+              // Hitung data awal dan akhir untuk informasi entri
               $startData = $offset + 1;
               $endData = min($offset + $perPage, $totalAlternatif);
+              
+              // Tentukan jumlah halaman di samping halaman aktif (kiri & kanan)
+              $adjacents = 2; 
             ?>
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-center px-4 py-3 border-top" style="background-color: #f8fafc; border-radius: 0 0 var(--radius-md) var(--radius-md);">
+              
               <div class="mb-3 mb-md-0" style="font-size: 0.8125rem; color: var(--text-500);">
                 Menampilkan <span style="font-weight: 600; color: var(--text-800);"><?= $startData ?></span> hingga <span style="font-weight: 600; color: var(--text-800);"><?= $endData ?></span> dari <span style="font-weight: 600; color: var(--text-800);"><?= $totalAlternatif ?></span> data
               </div>
+              
               <nav>
                 <ul class="pagination pagination-sm mb-0" style="gap: 0.35rem;">
                   <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
-                    <a class="page-link d-flex align-items-center justify-content-center" href="<?= ($page > 1) ? '?page=' . ($page - 1) : '#' ?>" style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border-light); color: var(--text-600); background-color: white;">
+                    <a class="page-link d-flex align-items-center justify-content-center" href="<?= ($page > 1) ? '?page=' . ($page - 1) . $queryString : '#' ?>" style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border-light); color: var(--text-600); background-color: white;">
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg>
                     </a>
                   </li>
+                  
                   <?php for ($p = 1; $p <= $totalPages; $p++): ?>
-                    <li class="page-item <?= ($p === $page) ? 'active' : '' ?>">
-                      <a class="page-link d-flex align-items-center justify-content-center fw-medium" href="?page=<?= $p ?>" style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid <?= ($p === $page) ? 'transparent' : 'var(--border-light)' ?>; color: <?= ($p === $page) ? 'white' : 'var(--text-600)' ?>; background-color: <?= ($p === $page) ? 'var(--blue-600)' : 'white' ?>; <?= ($p === $page) ? 'box-shadow: 0 2px 4px rgba(37,99,235,0.25);' : '' ?>">
-                        <?= $p ?>
-                      </a>
-                    </li>
+                    <?php 
+                      // Kondisi untuk menampilkan nomor halaman: 
+                      // 1. Selalu tampilkan halaman pertama (1)
+                      // 2. Selalu tampilkan halaman terakhir ($totalPages)
+                      // 3. Tampilkan halaman di sekitar halaman aktif ($page)
+                      if ($p == 1 || $p == $totalPages || ($p >= $page - $adjacents && $p <= $page + $adjacents)): 
+                    ?>
+                      <li class="page-item <?= ($p === $page) ? 'active' : '' ?>">
+                        <a class="page-link d-flex align-items-center justify-content-center fw-medium" href="?page=<?= $p . $queryString ?>" style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid <?= ($p === $page) ? 'transparent' : 'var(--border-light)' ?>; color: <?= ($p === $page) ? 'white' : 'var(--text-600)' ?>; background-color: <?= ($p === $page) ? 'var(--blue-600)' : 'white' ?>; <?= ($p === $page) ? 'box-shadow: 0 2px 4px rgba(37,99,235,0.25);' : '' ?>">
+                          <?= $p ?>
+                        </a>
+                      </li>
+                    <?php 
+                      // Tampilkan elipsis (...) jika halaman berada tepat sebelum atau sesudah blok halaman yang aktif
+                      elseif ($p == $page - $adjacents - 1 || $p == $page + $adjacents + 1): 
+                    ?>
+                      <li class="page-item disabled">
+                        <span class="page-link d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px; border: none; background-color: transparent; color: var(--text-500);">
+                          ...
+                        </span>
+                      </li>
+                    <?php endif; ?>
                   <?php endfor; ?>
+                  
                   <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
-                    <a class="page-link d-flex align-items-center justify-content-center" href="<?= ($page < $totalPages) ? '?page=' . ($page + 1) : '#' ?>" style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border-light); color: var(--text-600); background-color: white;">
+                    <a class="page-link d-flex align-items-center justify-content-center" href="<?= ($page < $totalPages) ? '?page=' . ($page + 1) . $queryString : '#' ?>" style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border-light); color: var(--text-600); background-color: white;">
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
                     </a>
                   </li>
                 </ul>
               </nav>
             </div>
-          <?php endif; ?>
+<?php endif; ?>
         <?php endif; ?>
       </div>
     </div>

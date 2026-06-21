@@ -34,14 +34,13 @@ function kalkulasiUlangBobot($conn) {
     }
 }
 
-// Menangani Request POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // --- TAMBAH KRITERIA ---
     if (isset($_POST['add_kriteria'])) {
         $nama = trim($_POST['nama_kriteria']);
-        $bobot = 0; // Set awal 0, akan diubah oleh fungsi
-        $is_locked = 0; // Default tidak di-lock
+        $bobot = 0;
+        $is_locked = 0;
 
         $stmt = mysqli_prepare($conn, "INSERT INTO kriteria (nama_kriteria, bobot_persen, is_locked) VALUES (?, ?, ?)");
         mysqli_stmt_bind_param($stmt, 'sdi', $nama, $bobot, $is_locked);
@@ -57,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = (int)$_POST['id_kriteria'];
         $nama = trim($_POST['nama_kriteria']);
         $bobot = (float)$_POST['bobot'];
-        $is_locked = isset($_POST['is_locked']) ? 1 : 0; // Dari checkbox
+        $is_locked = isset($_POST['is_locked']) ? 1 : 0;
 
         $stmt = mysqli_prepare($conn, "UPDATE kriteria SET nama_kriteria = ?, bobot_persen = ?, is_locked = ? WHERE id_kriteria = ?");
         mysqli_stmt_bind_param($stmt, 'sdii', $nama, $bobot, $is_locked, $id);

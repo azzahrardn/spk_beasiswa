@@ -233,9 +233,15 @@ $queryString = $filterInstansi !== '' ? '&instansi=' . urlencode($filterInstansi
           
          <?php if ($totalPages > 1): ?>
             <?php 
+              $queryParams = $_GET;
+              unset($queryParams['page']); 
+              $queryString = !empty($queryParams) ? '&' . http_build_query($queryParams) : '';
               // Hitung data awal dan akhir untuk informasi entri
               $startData = $offset + 1;
               $endData = min($offset + $perPage, $totalAlternatif);
+              
+              // Tentukan jumlah halaman di samping halaman aktif (kiri & kanan)
+              $adjacents = 2; 
             ?>
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-center px-4 py-3 border-top" style="background-color: #f8fafc; border-radius: 0 0 var(--radius-md) var(--radius-md);">
               
@@ -252,11 +258,28 @@ $queryString = $filterInstansi !== '' ? '&instansi=' . urlencode($filterInstansi
                   </li>
                   
                   <?php for ($p = 1; $p <= $totalPages; $p++): ?>
-                    <li class="page-item <?= ($p === $page) ? 'active' : '' ?>">
-                      <a class="page-link d-flex align-items-center justify-content-center fw-medium" href="?page=<?= $p . $queryString ?>" style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid <?= ($p === $page) ? 'transparent' : 'var(--border-light)' ?>; color: <?= ($p === $page) ? 'white' : 'var(--text-600)' ?>; background-color: <?= ($p === $page) ? 'var(--blue-600)' : 'white' ?>; <?= ($p === $page) ? 'box-shadow: 0 2px 4px rgba(37,99,235,0.25);' : '' ?>">
-                        <?= $p ?>
-                      </a>
-                    </li>
+                    <?php 
+                      // Kondisi untuk menampilkan nomor halaman: 
+                      // 1. Selalu tampilkan halaman pertama (1)
+                      // 2. Selalu tampilkan halaman terakhir ($totalPages)
+                      // 3. Tampilkan halaman di sekitar halaman aktif ($page)
+                      if ($p == 1 || $p == $totalPages || ($p >= $page - $adjacents && $p <= $page + $adjacents)): 
+                    ?>
+                      <li class="page-item <?= ($p === $page) ? 'active' : '' ?>">
+                        <a class="page-link d-flex align-items-center justify-content-center fw-medium" href="?page=<?= $p . $queryString ?>" style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid <?= ($p === $page) ? 'transparent' : 'var(--border-light)' ?>; color: <?= ($p === $page) ? 'white' : 'var(--text-600)' ?>; background-color: <?= ($p === $page) ? 'var(--blue-600)' : 'white' ?>; <?= ($p === $page) ? 'box-shadow: 0 2px 4px rgba(37,99,235,0.25);' : '' ?>">
+                          <?= $p ?>
+                        </a>
+                      </li>
+                    <?php 
+                      // Tampilkan elipsis (...) jika halaman berada tepat sebelum atau sesudah blok halaman yang aktif
+                      elseif ($p == $page - $adjacents - 1 || $p == $page + $adjacents + 1): 
+                    ?>
+                      <li class="page-item disabled">
+                        <span class="page-link d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px; border: none; background-color: transparent; color: var(--text-500);">
+                          ...
+                        </span>
+                      </li>
+                    <?php endif; ?>
                   <?php endfor; ?>
                   
                   <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
@@ -267,7 +290,7 @@ $queryString = $filterInstansi !== '' ? '&instansi=' . urlencode($filterInstansi
                 </ul>
               </nav>
             </div>
-          <?php endif; ?>
+<?php endif; ?>
           
         </div>
       </div>
